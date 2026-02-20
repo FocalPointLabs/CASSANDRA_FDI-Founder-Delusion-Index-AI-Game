@@ -1,12 +1,11 @@
 # CASSANDRA — Founder Delusion Index
 
-A satirical startup idea scorer built with Next.js, Supabase, and the Cerebras LLM. Submit your startup idea, receive your scores, face the verdict.
-
+A satirical startup idea scoring game built with Next.js, Supabase, and the Cerebras LLM. Submit your startup idea, receive your Delusion Index scores, face the verdict, try to make the leaderboard!
 ---
 
 ## What It Does
 
-The Oracle takes your startup pitch and ruthlessly evaluates it across seven metrics, then delivers a goblin-brained verdict and assigns you a founder rank. Results are saved to a weekly leaderboard ranked by composite score.
+CASSANDRA The Oracle bot takes your startup pitch and ruthlessly evaluates it across seven metrics, then delivers a goblin-brained verdict and assigns you a founder rank. Results are saved to a weekly leaderboard ranked by composite score.
 
 **Scoring Metrics**
 - **AI Hype Beast** — How saturated with AI/ML terminology is your idea?
@@ -27,7 +26,7 @@ The Oracle takes your startup pitch and ruthlessly evaluates it across seven met
 
 ## Tech Stack
 
-- **Framework** — Next.js 15 (Pages Router, no Turbopack)
+- **Framework** — Next.js (Pages Router)
 - **Database & Auth** — Supabase (Postgres + Auth)
 - **LLM** — Cerebras (`gpt-oss-120b`) for YC bait score, delusion index, founder rank, and goblin verdict
 - **Styling** — Tailwind CSS + custom oracle.css design system
@@ -140,9 +139,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Notes
 
-- Scores are a mix of keyword heuristics (computed server-side) and LLM evaluation (Cerebras). The Oracle is not a real investor.
+- Scores are a mix of keyword heuristics (computed server-side) and LLM evaluation (Cerebras.)
 - The leaderboard resets weekly, ranked by composite score.
 - Onboarding profile data (name, follower count, motivation) is stored in Supabase and cached in localStorage.
+ *CASSANDRA/The Oracle is not a real investor. All game results are satire.*
 
 ---
 
