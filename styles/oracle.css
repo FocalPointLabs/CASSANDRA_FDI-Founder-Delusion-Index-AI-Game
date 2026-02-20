@@ -1,0 +1,693 @@
+/* ============================================================
+   THE ORACLE — Master Stylesheet
+   Import this once in _app.tsx or pages/_document.tsx
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   TOKENS
+   ------------------------------------------------------------ */
+:root {
+  /* Brand colors */
+  --gold:        #C9A84C;
+  --gold-light:  #E8C97A;
+  --gold-dim:    #7A6030;
+  --gold-glow:   rgba(201, 168, 76, 0.3);
+
+  /* Backgrounds */
+  --black:       #080808;
+  --smoke:       #141414;
+  --smoke2:      #1A1A1A;
+  --ash:         #2A2A2A;
+
+  /* Text */
+  --cream:       #F0E6C8;
+  --muted:       #9A9080;
+  --faint:       #3A3530;
+
+  /* Accents */
+  --red:         #9B2020;
+
+  /* Typography */
+  --font-title:   'Teko', sans-serif;
+  --font-display: var(--font-title);
+  --font-mono:    'Courier Prime', 'Courier New', monospace;
+
+  /* Spacing scale */
+  --space-xs:  0.35rem;
+  --space-sm:  0.75rem;
+  --space-md:  1.25rem;
+  --space-lg:  2rem;
+  --space-xl:  3rem;
+
+  /* Borders */
+  --border-subtle: 1px solid var(--ash);
+  --border-gold:   1px solid var(--gold-dim);
+}
+
+/* ------------------------------------------------------------
+   RESET & BASE
+   ------------------------------------------------------------ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--black);
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input, textarea {
+  font-family: var(--font-mono);
+}
+
+/* ------------------------------------------------------------
+   GLOBAL OVERLAYS (applied via .oracle-page wrapper)
+   ------------------------------------------------------------ */
+
+/* Grain texture */
+.oracle-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.12'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 200;
+  opacity: 0.6;
+}
+
+/* Spotlight vignette */
+.oracle-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 50% 40%, rgba(201,168,76,0.09) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Scanlines */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.07) 2px,
+    rgba(0, 0, 0, 0.07) 4px
+  );
+  pointer-events: none;
+  z-index: 199;
+}
+
+/* ------------------------------------------------------------
+   CORNER BRACKETS
+   ------------------------------------------------------------ */
+.corner {
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  border-color: var(--gold-dim);
+  border-style: solid;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.corner-tl { top: 20px; left: 20px;  border-width: 1px 0 0 1px; }
+.corner-tr { top: 20px; right: 20px; border-width: 1px 1px 0 0; }
+.corner-bl { bottom: 20px; left: 20px;  border-width: 0 0 1px 1px; }
+.corner-br { bottom: 20px; right: 20px; border-width: 0 1px 1px 0; }
+
+/* ------------------------------------------------------------
+   TYPOGRAPHY
+   ------------------------------------------------------------ */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.t-display {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: clamp(2.6rem, 7vw, 4.5rem);
+  color: var(--gold);
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 40px var(--gold-glow), 0 0 80px rgba(201,168,76,0.1);
+  position: relative;
+}
+
+/* Focused bloom glow behind the title — tighter and more theatrical than the page vignette */
+.t-display::after {
+  content: '';
+  position: absolute;
+  inset: -60% -20%;
+  background: radial-gradient(ellipse 70% 60% at 50% 55%, rgba(201,168,76,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.t-heading {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.8rem;
+  color: var(--gold);
+}
+
+.t-subheading {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--cream);
+}
+
+.t-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+}
+
+.t-meta {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+
+.t-body {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------
+   ORNAMENTS & DIVIDERS
+   ------------------------------------------------------------ */
+.ornament {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--gold-dim);
+}
+
+.ornament-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+
+.ornament-label {
+  font-size: 1.1rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--ash);
+}
+
+.divider-diamond {
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--gold-dim);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.suits {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  color: var(--gold-dim);
+  opacity: 0.4;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+/* ------------------------------------------------------------
+   CARD / PANEL
+   ------------------------------------------------------------ */
+.oracle-card {
+  background: var(--smoke);
+  border: var(--border-subtle);
+  padding: var(--space-lg) 2.5rem;
+  position: relative;
+  box-shadow: 0 0 60px rgba(0,0,0,0.8), 0 0 100px rgba(201,168,76,0.04);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.oracle-card:hover {
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 60px rgba(0,0,0,0.8), 0 0 120px rgba(201,168,76,0.07);
+}
+
+/* Inner inset border brightens on hover too */
+.oracle-card:hover::before {
+  border-color: rgba(201,168,76,0.14);
+}
+
+/* Inner inset border */
+.oracle-card::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(201,168,76,0.08);
+  pointer-events: none;
+}
+
+.oracle-card--sm {
+  padding: var(--space-md) var(--space-lg);
+}
+
+/* ------------------------------------------------------------
+   CRYSTAL BALL ICON
+   ------------------------------------------------------------ */
+.crystal-ball {
+  display: block;
+  filter: drop-shadow(0 0 20px rgba(201,168,76,0.4)) drop-shadow(0 0 40px rgba(201,168,76,0.15));
+  animation: ballPulse 3s ease-in-out infinite;
+}
+
+.crystal-ball--lg { font-size: 5rem; }
+.crystal-ball--md { font-size: 3rem; }
+.crystal-ball--sm { font-size: 2rem; }
+
+@keyframes ballPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 20px rgba(201,168,76,0.4)) drop-shadow(0 0 40px rgba(201,168,76,0.15));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(201,168,76,0.7)) drop-shadow(0 0 60px rgba(201,168,76,0.3));
+  }
+}
+
+/* ------------------------------------------------------------
+   BUTTONS
+   ------------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: .9rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 0.9rem 2.2rem;
+  border: 1px solid;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s, border-color 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--black);
+  border-color: var(--gold);
+  box-shadow: 0 0 30px rgba(201,168,76,0.15);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--gold-light);
+  box-shadow: 0 0 50px rgba(201,168,76,0.35);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--gold);
+  border-color: var(--gold-dim);
+}
+.btn-ghost:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.06);
+  transform: translateY(-1px);
+}
+
+/* ------------------------------------------------------------
+   FORM ELEMENTS
+   ------------------------------------------------------------ */
+.oracle-input,
+.oracle-textarea {
+  width: 100%;
+  background: var(--black);
+  border: var(--border-subtle);
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.oracle-input:focus,
+.oracle-textarea:focus {
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 0 1px rgba(201,168,76,0.12);
+}
+
+.oracle-input::placeholder,
+.oracle-textarea::placeholder {
+  color: #2E2A25;
+  font-style: italic;
+}
+
+.oracle-textarea {
+  resize: vertical;
+  line-height: 1.7;
+}
+
+/* ------------------------------------------------------------
+   SCORE BARS
+   ------------------------------------------------------------ */
+.score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.score-row {}
+
+.score-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.score-icon {
+  color: var(--gold-dim);
+  font-size: .75rem;
+  flex-shrink: 0;
+}
+
+.score-label {
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #7A7060;
+  flex: 1;
+}
+
+.score-value {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  min-width: 2.5rem;
+  text-align: right;
+}
+.score-value--high { color: var(--gold); }
+.score-value--mid  { color: #A0896A; }
+.score-value--low  { color: #5A5045; }
+
+.score-track {
+  height: 3px;
+  background: var(--ash);
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.score-fill--high { background: var(--gold); box-shadow: 0 0 8px rgba(201,168,76,0.6); }
+.score-fill--mid  { background: #7A6030; }
+.score-fill--low  { background: #3A3028; }
+
+/* ------------------------------------------------------------
+   VERDICT BLOCK
+   ------------------------------------------------------------ */
+.verdict-block {
+  border: 1px solid rgba(201,168,76,0.2);
+  background: rgba(201,168,76,0.03);
+  padding: 1.5rem;
+  position: relative;
+}
+
+.verdict-block::before {
+  content: '"';
+  position: absolute;
+  top: -0.75rem;
+  left: 1rem;
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--gold-dim);
+  line-height: 1;
+  background: var(--smoke);
+  padding: 0 0.3rem;
+}
+
+.verdict-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: var(--cream);
+}
+
+/* ------------------------------------------------------------
+   LOADING DOTS
+   ------------------------------------------------------------ */
+.loading-dots span {
+  animation: dotBlink 1.2s infinite;
+  font-size: 1.1rem;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotBlink {
+  0%, 80%, 100% { opacity: 0.15; }
+  40%           { opacity: 1; }
+}
+
+/* ------------------------------------------------------------
+   PAGE REVEAL ANIMATION
+   ------------------------------------------------------------ */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Smoother, slightly slower base reveal */
+.reveal { animation: revealUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+/* Staggered children — add .reveal-group to a parent, children auto-stagger */
+.reveal-group > * {
+  opacity: 0;
+  animation: revealUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.reveal-group > *:nth-child(1)  { animation-delay: 0.05s; }
+.reveal-group > *:nth-child(2)  { animation-delay: 0.12s; }
+.reveal-group > *:nth-child(3)  { animation-delay: 0.19s; }
+.reveal-group > *:nth-child(4)  { animation-delay: 0.26s; }
+.reveal-group > *:nth-child(5)  { animation-delay: 0.33s; }
+.reveal-group > *:nth-child(6)  { animation-delay: 0.40s; }
+.reveal-group > *:nth-child(7)  { animation-delay: 0.47s; }
+.reveal-group > *:nth-child(8)  { animation-delay: 0.54s; }
+
+/* ------------------------------------------------------------
+   SCORE BAR ENTRY ANIMATION
+   Add .score-animate to .score-list to trigger on mount.
+   JS: el.classList.add('score-animate') after IntersectionObserver fires.
+   ------------------------------------------------------------ */
+@keyframes scoreFillIn {
+  from { width: 0; }
+}
+
+.score-animate .score-fill {
+  animation: scoreFillIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Stagger each bar's fill */
+.score-animate .score-row:nth-child(1) .score-fill { animation-delay: 0.1s; }
+.score-animate .score-row:nth-child(2) .score-fill { animation-delay: 0.2s; }
+.score-animate .score-row:nth-child(3) .score-fill { animation-delay: 0.3s; }
+.score-animate .score-row:nth-child(4) .score-fill { animation-delay: 0.4s; }
+.score-animate .score-row:nth-child(5) .score-fill { animation-delay: 0.5s; }
+.score-animate .score-row:nth-child(6) .score-fill { animation-delay: 0.6s; }
+.score-animate .score-row:nth-child(7) .score-fill { animation-delay: 0.7s; }
+.score-animate .score-row:nth-child(8) .score-fill { animation-delay: 0.8s; }
+
+/* ------------------------------------------------------------
+   UTILITY
+   ------------------------------------------------------------ */
+.text-center  { text-align: center; }
+.text-gold    { color: var(--gold); }
+.text-muted   { color: var(--muted); }
+.text-faint   { color: var(--faint); }
+
+.mt-xs { margin-top: var(--space-xs); }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.mb-xl { margin-bottom: var(--space-xl); }
+
+.w-full { width: 100%; }
+.flex   { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+
+
+
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   Mobile-first adjustments — all overrides below ~768px
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   SMALL — phones (< 480px)
+   ------------------------------------------------------------ */
+@media (max-width: 480px) {
+
+  /* Scale down the giant homepage display title */
+  .t-display {
+    font-size: 2.4rem;
+  }
+
+  .t-heading {
+    font-size: 1.5rem;
+  }
+
+  /* Corner brackets are decorative clutter on small screens */
+  .corner {
+    width: 30px;
+    height: 30px;
+    top: 12px;
+    left: 12px;
+    opacity: 0.2;
+  }
+  .corner-tr { top: 12px; left: auto; right: 12px; }
+  .corner-bl { top: auto; bottom: 12px; left: 12px; }
+  .corner-br { top: auto; bottom: 12px; left: auto; right: 12px; }
+
+  /* Cards go edge-to-edge with reduced padding */
+  .oracle-card {
+    padding: var(--space-md) var(--space-md);
+    border-left: none;
+    border-right: none;
+  }
+
+  /* Inner inset border looks odd on full-bleed cards */
+  .oracle-card::before {
+    display: none;
+  }
+
+  /* Buttons full-width and stacked */
+  .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  /* Submit row (char count + button) stacks vertically */
+  .submit-row-mobile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+  }
+
+  .submit-row-mobile .t-meta {
+    text-align: center;
+  }
+
+  /* Tighten page padding */
+  .oracle-page {
+    padding: 1.25rem 0;
+  }
+
+  /* Score values slightly smaller */
+  .score-value {
+    font-size: 0.95rem;
+  }
+
+  /* Verdict text reins in a bit */
+  .verdict-text {
+    font-size: 0.95rem;
+  }
+}
+
+/* ------------------------------------------------------------
+   MEDIUM — large phones / small tablets (481px–768px)
+   ------------------------------------------------------------ */
+@media (min-width: 481px) and (max-width: 768px) {
+
+  .t-display {
+    font-size: 3rem;
+  }
+
+  .oracle-card {
+    padding: var(--space-lg) var(--space-lg);
+  }
+
+  /* Slightly shrink corners */
+  .corner {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ------------------------------------------------------------
+   LARGE — desktop (> 1024px)
+   Mostly fine as designed; minor enhancements only
+   ------------------------------------------------------------ */
+@media (min-width: 1024px) {
+
+  /* More breathing room on wide screens */
+  .oracle-card {
+    padding: 2.5rem 3rem;
+  }
+
+  .t-display {
+    font-size: 4.5rem;
+  }
+
+  /* Slightly more dramatic corner brackets */
+  .corner {
+    width: 64px;
+    height: 64px;
+    opacity: 0.4;
+  }
+}
