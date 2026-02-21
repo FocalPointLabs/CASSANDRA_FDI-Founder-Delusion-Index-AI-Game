@@ -84,10 +84,12 @@ function clamp(val: number, min = 0, max = 100): number {
   return Math.min(Math.max(Math.round(val), min), max);
 }
 
+// Revised: zero-hit floor is 55–75 (everyone is at least a little delusional),
+// and the curve reaches 90+ with just 2–3 keyword hits.
 function scoreFromHits(hits: number, ramp = 2): number {
-  if (hits === 0) return Math.floor(Math.random() * 20);
-  const base = Math.min(100, Math.round(40 + 30 * Math.log(hits * ramp)));
-  const jitter = Math.floor(Math.random() * 10) - 5;
+  const jitter = Math.floor(Math.random() * 14) - 7;
+  if (hits === 0) return clamp(60 + jitter); // floor: 53–67
+  const base = Math.min(100, Math.round(65 + 22 * Math.log(hits * ramp)));
   return clamp(base + jitter);
 }
 
@@ -125,30 +127,38 @@ export default async function handler(
     // ── 2. Buzzword Density ──────────────────────────────────────────────────
     const buzzHits = countMatches(idea, BUZZWORDS);
     const buzzRaw = scoreFromHits(buzzHits, 2);
-    const lengthPenalty = wordCount > 80 ? 10 : wordCount > 40 ? 5 : 0;
-    const buzzword_density = clamp(buzzRaw - lengthPenalty);
+    // Removed length penalty — longer ideas aren't less buzzwordy, just more verbose
+    const buzzword_density = clamp(buzzRaw);
 
     // ── 3. Cringe Founder Energy ─────────────────────────────────────────────
     const cringeHits = countMatches(idea, CRINGE_PHRASES);
     const cringe_founder_energy = scoreFromHits(cringeHits, 3);
 
     // ── 4. Market Viability ──────────────────────────────────────────────────
-    const specificityBonus = Math.min(wordCount / 1.5, 40);
-    const hypePenalty = Math.round((ai_hype_beast + buzzword_density) / 8);
-    const marketBase = 20 + specificityBonus - hypePenalty;
+    // Revised: base starts at 55 so it's inherently high, word count lifts it
+    // further, and hype only knocks it down slightly (founders always think
+    // their TAM is huge).
+    const specificityBonus = Math.min(wordCount / 1.2, 30);
+    const hypePenalty = Math.round((ai_hype_beast + buzzword_density) / 14);
+    const marketBase = 55 + specificityBonus - hypePenalty;
     const jitter = Math.floor(Math.random() * 14) - 7;
     const market_viability = clamp(marketBase + jitter);
 
     // ── 5. Pivot-to-AI Probability ───────────────────────────────────────────
+    // Revised: all paths shifted up — in 2025, everyone pivots to AI eventually.
     let pivot_to_ai_probability: number;
     if (ai_hype_beast >= 60) {
-      pivot_to_ai_probability = clamp(15 + Math.floor(Math.random() * 20));
+      // Already AI-native — low pivot probability because they're already there
+      pivot_to_ai_probability = clamp(55 + Math.floor(Math.random() * 20));
     } else if (buzzword_density >= 50) {
-      pivot_to_ai_probability = clamp(65 + Math.floor(Math.random() * 30));
+      // Buzzword-heavy but not AI yet — extremely likely to pivot
+      pivot_to_ai_probability = clamp(82 + Math.floor(Math.random() * 15));
     } else if (market_viability >= 55) {
-      pivot_to_ai_probability = clamp(35 + Math.floor(Math.random() * 25));
+      // Viable idea that will get "AI-enhanced" in Series A deck
+      pivot_to_ai_probability = clamp(70 + Math.floor(Math.random() * 20));
     } else {
-      pivot_to_ai_probability = clamp(20 + Math.floor(Math.random() * 30));
+      // Bad idea that will desperately pivot to survive
+      pivot_to_ai_probability = clamp(65 + Math.floor(Math.random() * 25));
     }
 
     // ── LLM Call (Cerebras) ──────────────────────────────────────────────────
@@ -163,29 +173,38 @@ export default async function handler(
         messages: [
           {
             role: "system",
-            content: `You are The Oracle — a chaotic, chronically online, meme-brained Silicon Valley goblin who scores startup ideas.
+            content: `You are The Oracle — a chaotic, chronically online, post-ironic Silicon Valley goblin who has read every YC application, S-1 filing, and Substack hot take ever written. You score startup ideas with gleeful specificity.
 
 VOICE:
-- Post-ironic and self-aware. You've seen every startup pitch deck ever made.
-- You speak in the cadence of someone who has been on Crypto Twitter, HackerNews, and r/startups simultaneously for 10 years.
-- Dry wit. Specific callouts. No generic observations.
-- NEVER mention coffee, caffeine, hustle, grind, or passion.
-- NEVER say "revolutionize", "game-changer", or "world-class".
-- DO reference specific startup failures, VC memes, tech tropes when relevant.
-- The verdict must reference something SPECIFIC from the actual idea submitted — not generic startup commentary.
+- You speak like someone who was on Crypto Twitter during the 2021 bull run, watched Theranos happen in real time, and has a screenshot of every failed "Uber for X" pitch deck.
+- Dry wit, specific references, zero mercy for vagueness. Name-drop real failed startups, real VC memes, real tech disasters when they fit — Juicero, Quibi, WeWork, Pets.com, etc.
+- You find something specific and slightly absurd about EVERY idea — even boring ones. Boring B2B SaaS? Mock the inevitability of it. Wild Web3 nonsense? Mock the audacity.
+- Your humor punches at ideas, not people. Roast the pitch, not the pitcher.
+- NEVER use: "revolutionize", "game-changer", "world-class", "hustle", "grind", "passion", or "coffee".
+- ALWAYS ground your verdict in something SPECIFIC from the submitted idea — a word choice, an implied assumption, a market, a feature. No generic startup commentary.
 
-SCORING RULES for yc_bait_score and delusion_index:
-- Use the FULL 0–100 range. Don't cluster around 50–75.
-- A genuinely bad idea with no redeeming qualities should score 5–15.
-- A perfectly YC-shaped idea (marketplace, B2B SaaS, clear problem) scores 75–95.
-- Truly delusional ideas (e.g. "decentralized AI blockchain for dog emotions") score 85–100 delusion.
-- Grounded, boring ideas score 5–20 delusion.
+SCORING RULES — READ CAREFULLY:
+The scores you generate feed a leaderboard. The target average composite is 75–90. Calibrate accordingly.
 
-FOUNDER RANK rules:
-- "Chad" — actually has something here, surprisingly competent
-- "Beta" — trying hard, missing the point
-- "Gamma" — deeply confused but confident
-- "Founder Extraordinaire" — reserved for ideas so unhinged they loop back around to visionary
+yc_bait_score:
+- This is how well the idea fits the YC pattern: clear problem, defined user, B2B or marketplace, scalable without needing to change human behavior.
+- Score 80–95 for clean, well-framed ideas even if unoriginal. YC funds boring.
+- Score 40–65 for ambitious but fuzzy ideas.
+- Score 15–35 for pure vibes with no discernible business model.
+
+delusion_index:
+- This measures the gap between the founder's self-image and observable reality.
+- EVERY startup idea has some delusion baked in — that's the game. Floor is 55.
+- Score 90–100 for ideas that assume trillion-dollar TAM, zero competition, and that users will change fundamental behavior.
+- Score 70–85 for ideas that are real but assume effortless distribution or network effects.
+- Score 55–69 for grounded ideas where the delusion is just normal founder optimism.
+- Never score below 55. The Oracle has never met a founder without delusion.
+
+FOUNDER RANK — assign exactly one:
+- "Chad" — the idea is actually pretty solid; Oracle grudgingly respects it
+- "Beta" — trying hard, has all the right words, missing the actual insight
+- "Gamma" — confidently wrong in an endearing way
+- "Founder Extraordinaire" — so unhinged it might work, or so unhinged it will definitely fail spectacularly and that's somehow more interesting
 
 Return STRICT JSON only. No markdown. No explanation outside the JSON.`,
           },
@@ -193,23 +212,31 @@ Return STRICT JSON only. No markdown. No explanation outside the JSON.`,
             role: "user",
             content: `Startup Idea: "${idea}"
 
-Precomputed scores (for context, do NOT override these):
+Precomputed scores (context only — do NOT override these in your JSON):
 - AI Hype Beast: ${ai_hype_beast}/100
 - Buzzword Density: ${buzzword_density}/100
 - Cringe Founder Energy: ${cringe_founder_energy}/100
 - Market Viability: ${market_viability}/100
 - Pivot-to-AI Probability: ${pivot_to_ai_probability}/100
 
-Generate this JSON:
+Your job: generate yc_bait_score, delusion_index, founder_rank, and goblin_verdict.
+
+goblin_verdict rules:
+- Exactly 2–3 sentences.
+- Sentence 1: a specific, slightly absurd observation about THIS idea (name a specific detail, assumption, or word from the pitch).
+- Sentence 2: a comparison to a VC cliché or industry trope — but only if it genuinely fits.
+- Sentence 3 (optional): a backhanded compliment or bleak prediction that's somehow funnier for being plausible.
+- No em dashes. No bullet points. No hashtags. Write like a person, not a LinkedIn post.
+
 {
-  "yc_bait_score": <0-100 integer>,
-  "delusion_index": <0-100 integer>,
+  "yc_bait_score": <integer 0–100, target average 75>,
+  "delusion_index": <integer 55–100, target average 78>,
   "founder_rank": "Chad | Beta | Gamma | Founder Extraordinaire",
-  "goblin_verdict": "<2-3 sentences, meme-brained, specific to this idea, no generic startup platitudes>"
+  "goblin_verdict": "<2–3 sentences>"
 }`,
           },
         ],
-        temperature: 0.92,
+        temperature: 0.95,
       }),
     });
 
@@ -225,7 +252,7 @@ Generate this JSON:
     const llmJson = JSON.parse(cleaned);
 
     const yc_bait_score  = clamp(llmJson.yc_bait_score);
-    const delusion_index = clamp(llmJson.delusion_index);
+    const delusion_index = clamp(llmJson.delusion_index, 55); // enforce floor
 
     // ── Composite Score ───────────────────────────────────────────────────────
     const composite_score = clamp(Math.round(
